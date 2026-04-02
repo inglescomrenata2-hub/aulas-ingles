@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Perfect — As Seen on TV</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0e0e0f;
+  --off: #161618;
+  --panel: #1c1c1f;
+  --border: #2e2e33;
+  --text: #e8e6e1;
+  --muted: #888783;
+  --accent: #e8c547;
+  --accent2: #e05a3a;
+  --correct: #4caf7d;
+  --wrong: #e05a3a;
+  --radius: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+.hero {
+  background: var(--off);
+  border-bottom: 1px solid var(--border);
+  padding: 36px 28px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(232,197,71,.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: .2em; color: var(--accent); margin-bottom: 8px; }
+.hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: .03em; line-height: 1; margin-bottom: 6px; }
+.hero h1 span { color: var(--accent); }
+.hero p { font-size: 13px; color: var(--muted); max-width: 480px; }
+
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 28px; overflow-x: auto; }
+.tab { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 10px 18px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-top: none; border-left: none; border-right: none; white-space: nowrap; transition: color .15s; letter-spacing: .02em; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--text); }
+.screen { display: none; padding: 28px; }
+.screen.active { display: block; }
+
+/* VOCAB */
+.vocab-intro { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+.vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.vocab-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: border-color .2s, transform .15s; position: relative; overflow: hidden; }
+.vocab-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.vocab-card.flipped .front { display: none; }
+.vocab-card.flipped .back { display: block; }
+.vocab-card .back { display: none; }
+.vc-word { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .04em; color: var(--accent); margin-bottom: 3px; }
+.vc-pos { font-size: 10px; font-weight: 500; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.vc-def { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.vc-example { font-size: 12px; color: var(--text); font-style: italic; margin-top: 6px; border-left: 2px solid var(--accent2); padding-left: 8px; }
+.vc-flip-hint { font-size: 10px; color: var(--border); position: absolute; bottom: 8px; right: 12px; }
+.vocab-card:hover .vc-flip-hint { color: var(--muted); }
+
+/* QUOTES */
+.quote-section { margin-bottom: 32px; }
+.qs-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: .15em; color: var(--muted); margin-bottom: 16px; }
+.quote-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; position: relative; }
+.quote-card .show-badge { font-size: 10px; font-weight: 500; letter-spacing: .08em; background: var(--border); color: var(--muted); padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+.quote-text { font-size: 15px; line-height: 1.7; color: var(--text); font-style: italic; margin-bottom: 12px; }
+.quote-text .pp { color: var(--accent); font-weight: 500; font-style: normal; }
+.quote-analysis { display: none; }
+.quote-analysis.show { display: block; }
+.analysis-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
+.analysis-tag { font-size: 10px; font-weight: 500; letter-spacing: .06em; padding: 2px 8px; border-radius: 20px; white-space: nowrap; margin-top: 2px; flex-shrink: 0; }
+.tag-form { background: rgba(232,197,71,.12); color: var(--accent); }
+.tag-use  { background: rgba(224,90,58,.12); color: var(--accent2); }
+.tag-kw   { background: rgba(76,175,125,.12); color: var(--correct); }
+.analysis-text { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.reveal-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* EXERCISES */
+.ex-section { margin-bottom: 32px; }
+.ex-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: .04em; color: var(--text); margin-bottom: 4px; }
+.ex-desc { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.q-block { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; }
+.q-num { font-size: 10px; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+.q-text { font-size: 14px; margin-bottom: 14px; line-height: 1.6; }
+.q-scene { font-size: 11px; color: var(--accent2); font-style: italic; margin-bottom: 10px; }
+.options-grid { display: grid; gap: 7px; }
+.opt-btn { background: var(--off); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 10px 14px; border-radius: 8px; cursor: pointer; text-align: left; transition: all .15s; line-height: 1.4; width: 100%; }
+.opt-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(232,197,71,.05); }
+.opt-btn.correct { background: rgba(76,175,125,.1); border-color: var(--correct); color: var(--correct); cursor: default; }
+.opt-btn.wrong   { background: rgba(224,90,58,.1);  border-color: var(--wrong);   color: var(--wrong);   cursor: default; }
+.opt-btn.revealed { background: rgba(76,175,125,.07); border-color: var(--correct); color: var(--correct); cursor: default; opacity: .7; }
+.opt-btn:disabled { cursor: default; }
+.q-feedback { margin-top: 12px; padding: 12px 14px; border-radius: 8px; font-size: 13px; line-height: 1.6; display: none; }
+.q-feedback.show { display: block; }
+.q-feedback.ok { background: rgba(76,175,125,.1); color: var(--correct); border: 1px solid rgba(76,175,125,.25); }
+.q-feedback.ko { background: rgba(224,90,58,.1);  color: #f08070; border: 1px solid rgba(224,90,58,.25); }
+
+/* FILL IN */
+.fill-block { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; }
+.fill-sentence { font-size: 14px; line-height: 2.4; }
+.blank { display: inline-block; min-width: 110px; border-bottom: 2px solid var(--accent); padding: 0 6px; margin: 0 4px; cursor: pointer; color: var(--muted); font-style: italic; font-size: 13px; transition: color .15s; text-align: center; }
+.blank:hover { color: var(--accent); }
+.blank.filled { color: var(--text); font-style: normal; }
+.blank.correct { border-bottom-color: var(--correct); color: var(--correct); font-style: normal; }
+.blank.wrong   { border-bottom-color: var(--wrong);   color: var(--wrong);   font-style: normal; }
+.word-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 16px; background: var(--off); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; }
+.wb-label { font-size: 10px; letter-spacing: .1em; color: var(--muted); width: 100%; font-weight: 500; }
+.bank-chip { background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 5px 14px; border-radius: 20px; cursor: pointer; transition: all .15s; }
+.bank-chip:hover { border-color: var(--accent); color: var(--accent); }
+.bank-chip.sel { border-color: var(--accent); color: var(--accent); background: rgba(232,197,71,.08); outline: 1px solid var(--accent); }
+.bank-chip.used { opacity: .3; pointer-events: none; text-decoration: line-through; }
+
+/* RESULTS */
+.result-wrap { text-align: center; padding: 16px 0 28px; }
+.result-score { font-family: 'Bebas Neue', sans-serif; font-size: 80px; letter-spacing: .04em; line-height: 1; color: var(--accent); margin-bottom: 8px; }
+.result-msg { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
+.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.sc-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+.sc-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); }
+.sc-lbl { font-size: 11px; color: var(--muted); }
+.reset-btn { background: none; border: 1px solid var(--accent); color: var(--accent); font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 11px 28px; border-radius: 8px; cursor: pointer; transition: all .15s; letter-spacing: .02em; }
+.reset-btn:hover { background: rgba(232,197,71,.1); }
+
+@media (max-width: 520px) {
+  .hero h1 { font-size: 36px; }
+  .vocab-grid { grid-template-columns: 1fr; }
+  .score-grid { grid-template-columns: 1fr; }
+  .screen { padding: 20px 16px; }
+  .tabs { padding: 0 16px; }
+  .hero { padding: 28px 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">English B1 · Teenager · TV Series</div>
+  <h1>As Seen <span>on TV</span></h1>
+  <p>Present perfect in real scenes from Grey's Anatomy, Modern Family, Desperate Housewives and more.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="goTab(0,this)">Vocabulary</button>
+  <button class="tab" onclick="goTab(1,this)">Scene analysis</button>
+  <button class="tab" onclick="goTab(2,this)">MCQ quiz</button>
+  <button class="tab" onclick="goTab(3,this)">Fill in</button>
+  <button class="tab" onclick="goTab(4,this)">Results</button>
+</div>
+
+<!-- TAB 0: VOCAB -->
+<div id="t0" class="screen active">
+  <p class="vocab-intro">These words and expressions help you talk about TV series, characters, and plot. Click any card to see an example.</p>
+  <div class="vocab-grid">
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">plot twist</div>
+        <div class="vc-pos">noun</div>
+        <div class="vc-def">An unexpected change in the story that surprises the audience.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">plot twist</div>
+        <div class="vc-example">"I never saw that plot twist coming — she was the villain all along!"</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">cliffhanger</div>
+        <div class="vc-pos">noun</div>
+        <div class="vc-def">An ending that leaves the audience in suspense, wanting to know what happens next.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">cliffhanger</div>
+        <div class="vc-example">"The season finale had a huge cliffhanger — we still don't know if he survived."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">binge-watch</div>
+        <div class="vc-pos">verb</div>
+        <div class="vc-def">To watch many episodes of a series in a row without stopping.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">binge-watch</div>
+        <div class="vc-example">"I've been binge-watching Grey's Anatomy all weekend."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">cast</div>
+        <div class="vc-pos">noun</div>
+        <div class="vc-def">All the actors in a show or film.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">cast</div>
+        <div class="vc-example">"The cast of Modern Family has incredible chemistry."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">season finale</div>
+        <div class="vc-pos">noun phrase</div>
+        <div class="vc-def">The last episode of a season, usually the most dramatic.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">season finale</div>
+        <div class="vc-example">"Have you seen the season finale? It was insane!"</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">character arc</div>
+        <div class="vc-pos">noun phrase</div>
+        <div class="vc-def">The journey and transformation a character goes through in a story.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">character arc</div>
+        <div class="vc-example">"Her character arc in season 3 has been the best so far."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">spin-off</div>
+        <div class="vc-pos">noun</div>
+        <div class="vc-def">A new show created from characters or events of an existing one.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">spin-off</div>
+        <div class="vc-example">"They've already announced a spin-off of the original series."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">episode recap</div>
+        <div class="vc-pos">noun phrase</div>
+        <div class="vc-def">A summary of what happened in a previous episode.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">episode recap</div>
+        <div class="vc-example">"I missed last week — can you give me a quick episode recap?"</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">to be hooked on</div>
+        <div class="vc-pos">phrasal verb</div>
+        <div class="vc-def">To be completely addicted to a show, unable to stop watching.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">to be hooked on</div>
+        <div class="vc-example">"I've been hooked on this show since the first episode."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">foreshadowing</div>
+        <div class="vc-pos">noun</div>
+        <div class="vc-def">When the show gives subtle hints about what will happen later.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">foreshadowing</div>
+        <div class="vc-example">"Looking back, the writers have been foreshadowing this since season 1."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">supporting character</div>
+        <div class="vc-pos">noun phrase</div>
+        <div class="vc-def">A secondary character who is not the main protagonist.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">supporting character</div>
+        <div class="vc-example">"She started as a supporting character but has become one of my favourites."</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+    <div class="vocab-card" onclick="this.classList.toggle('flipped')">
+      <div class="front">
+        <div class="vc-word">on-screen chemistry</div>
+        <div class="vc-pos">noun phrase</div>
+        <div class="vc-def">The natural connection between two actors that makes their relationship convincing.</div>
+        <div class="vc-flip-hint">tap for example →</div>
+      </div>
+      <div class="back">
+        <div class="vc-word">on-screen chemistry</div>
+        <div class="vc-example">"The couple has amazing on-screen chemistry — have you noticed?"</div>
+        <div class="vc-flip-hint">tap to flip back</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB 1: SCENE ANALYSIS -->
+<div id="t1" class="screen">
+  <div class="quote-section">
+    <div class="qs-label">Real quotes from the video — click "analyse" to break down the grammar</div>
+
+    <div class="quote-card">
+      <span class="show-badge">Grey's Anatomy</span>
+      <div class="quote-text">"<span class='pp'>How long has it been</span> since you've <span class='pp'>had</span> feelings for Kate?"</div>
+      <button class="reveal-btn" onclick="revealQ(0,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa0">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">have/has + past participle</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Duration — asking how long a state has existed</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">How long + has + subject + past participle</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">Notice 'How long has it been since…' — one of the most natural ways to ask about duration in English. Common in emotional scenes.</span></div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <span class="show-badge">Modern Family</span>
+      <div class="quote-text">"<span class='pp'>Have you seen</span> my engagement ring? <span class='pp'>Have you seen</span> my fiancé?"</div>
+      <button class="reveal-btn" onclick="revealQ(1,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa1">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">Have/Has + subject + past participle</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Experience / recent past — asking if someone has done something at any point recently</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">Have you seen / Have you heard / Have you tried</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">The question 'Have you seen…?' connects the past event to the present moment. She's looking for the ring RIGHT NOW — that's what makes it present perfect, not simple past.</span></div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <span class="show-badge">Modern Family</span>
+      <div class="quote-text">"<span class='pp'>I have downloaded</span> a to-do list. <span class='pp'>I have a photo</span> of me and Owen."</div>
+      <button class="reveal-btn" onclick="revealQ(2,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa2">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">have + past participle (completed action with present result)</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Result — action completed in the past that matters NOW</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">just, already, yet — markers of recent completion</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">She downloaded the list recently and NOW she has it ready. The action is done, but its result is in the present.</span></div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <span class="show-badge">Grey's Anatomy</span>
+      <div class="quote-text">"<span class='pp'>How many have you been able to save</span>? Three."</div>
+      <button class="reveal-btn" onclick="revealQ(3,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa3">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">have + been able to + infinitive</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Accumulated experience / result up to now</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">How many have you…? How much have you…?</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">This is a doctor talking about his career record. He's asking about the total result across ALL his past operations — classic present perfect for accumulated experience.</span></div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <span class="show-badge">Grey's Anatomy / Desperate Housewives</span>
+      <div class="quote-text">"<span class='pp'>I haven't talked</span> to her in over a month. <span class='pp'>I haven't seen</span> her in two months."</div>
+      <button class="reveal-btn" onclick="revealQ(4,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa4">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">have/has + NOT + past participle</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Negative: something has NOT happened in a period of time</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">in + time period, for + duration</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">Negative present perfect with 'in' or 'for' = emphasises the absence of an action. 'I haven't seen her for two months' = she's been gone from my life for 2 months.</span></div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <span class="show-badge">Grey's Anatomy</span>
+      <div class="quote-text">"<span class='pp'>We've been partners</span> for almost 5 years. That's longer than any relationship <span class='pp'>I've ever had</span>."</div>
+      <button class="reveal-btn" onclick="revealQ(5,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa5">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">have/has + been + noun (continuous state) AND have/has + ever + past participle</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Duration of ongoing state + superlative life experience</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">ever, for, since — key adverbs for present perfect</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">'I've ever had' = in my entire life experience up to now. 'We've been partners for 5 years' = started 5 years ago and STILL true today.</span></div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <span class="show-badge">Desperate Housewives</span>
+      <div class="quote-text">"Odessa <span class='pp'>has worked</span> here for 10 years. She <span class='pp'>has cooked</span> and cleaned and <span class='pp'>made</span> up your bed."</div>
+      <button class="reveal-btn" onclick="revealQ(6,this)">Analyse grammar</button>
+      <div class="quote-analysis" id="qa6">
+        <div class="analysis-row"><span class="analysis-tag tag-form">Form</span><span class="analysis-text">has + past participle (list of actions over time)</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-use">Use</span><span class="analysis-text">Describing what someone has done over a period, emphasising their history</span></div>
+        <div class="analysis-row"><span class="analysis-tag tag-kw">Key words</span><span class="analysis-text">for + years/months = duration to the present</span></div>
+        <div class="analysis-row" style="margin-top:6px"><span class="analysis-text" style="color:var(--text)">This is emotional language — the speaker is defending Odessa by listing everything she HAS DONE. The present perfect makes the work feel ongoing and relevant to THIS moment.</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB 2: MCQ -->
+<div id="t2" class="screen">
+  <div class="ex-section">
+    <div class="ex-title">Grammar quiz</div>
+    <div class="ex-desc">Choose the best answer. Think about the context from the scenes.</div>
+
+    <div class="q-block" id="qb0">
+      <div class="q-num">Question 1 of 8</div>
+      <div class="q-scene">Grey's Anatomy — two doctors talking about a surgery</div>
+      <div class="q-text">— 'How many of these operations have you performed?' — '_____ about forty, maybe fifty.' — 'And how many have you been able to save?' — 'Three.'</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(0,0,this)">I perform</button>
+        <button class="opt-btn" onclick="pickMCQ(0,1,this)">I've performed</button>
+        <button class="opt-btn" onclick="pickMCQ(0,2,this)">I was performing</button>
+        <button class="opt-btn" onclick="pickMCQ(0,3,this)">I performed yesterday</button>
+      </div>
+      <div class="q-feedback" id="fb0"></div>
+    </div>
+
+    <div class="q-block" id="qb1">
+      <div class="q-num">Question 2 of 8</div>
+      <div class="q-scene">Modern Family — best friends talking</div>
+      <div class="q-text">"_____ since we were seven, Lux. Nothing can change that."</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(1,0,this)">We are best friends</button>
+        <button class="opt-btn" onclick="pickMCQ(1,1,this)">We were best friends</button>
+        <button class="opt-btn" onclick="pickMCQ(1,2,this)">We've been best friends</button>
+        <button class="opt-btn" onclick="pickMCQ(1,3,this)">We had been best friends</button>
+      </div>
+      <div class="q-feedback" id="fb1"></div>
+    </div>
+
+    <div class="q-block" id="qb2">
+      <div class="q-num">Question 3 of 8</div>
+      <div class="q-scene">Modern Family — someone complaining about forgetting things</div>
+      <div class="q-text">"I _____ the gas nozzle out of my car. I _____ my gun was loaded. But I _____ never _____ lunch."</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(2,0,this)">forgot / forgot / have / forgotten</button>
+        <button class="opt-btn" onclick="pickMCQ(2,1,this)">have forgotten / have forgotten / have / forgotten</button>
+        <button class="opt-btn" onclick="pickMCQ(2,2,this)">had forgotten / had forgotten / had / forgot</button>
+        <button class="opt-btn" onclick="pickMCQ(2,3,this)">have forgotten / have forgotten / will / forget</button>
+      </div>
+      <div class="q-feedback" id="fb2"></div>
+    </div>
+
+    <div class="q-block" id="qb3">
+      <div class="q-num">Question 4 of 8</div>
+      <div class="q-scene">Desperate Housewives — two characters talking about a woman</div>
+      <div class="q-text">"_____ in over a month. _____ in two months. She's disappeared."</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(3,0,this)">I didn't talk to her / I didn't see her</button>
+        <button class="opt-btn" onclick="pickMCQ(3,1,this)">I haven't talked to her / I haven't seen her</button>
+        <button class="opt-btn" onclick="pickMCQ(3,2,this)">I don't talk to her / I don't see her</button>
+        <button class="opt-btn" onclick="pickMCQ(3,3,this)">I wasn't talking to her / I wasn't seeing her</button>
+      </div>
+      <div class="q-feedback" id="fb3"></div>
+    </div>
+
+    <div class="q-block" id="qb4">
+      <div class="q-num">Question 5 of 8</div>
+      <div class="q-scene">Grey's Anatomy — partners arguing about time</div>
+      <div class="q-text">"So, how long _____ partners?" — "About 4 years." — "What? _____ for almost 5 years!"</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(4,0,this)">have you guys been / We've been partners</button>
+        <button class="opt-btn" onclick="pickMCQ(4,1,this)">are you guys / We are partners</button>
+        <button class="opt-btn" onclick="pickMCQ(4,2,this)">were you guys / We were partners</button>
+        <button class="opt-btn" onclick="pickMCQ(4,3,this)">did you guys be / We've been</button>
+      </div>
+      <div class="q-feedback" id="fb4"></div>
+    </div>
+
+    <div class="q-block" id="qb5">
+      <div class="q-num">Question 6 of 8</div>
+      <div class="q-scene">Modern Family — checking the wedding to-do list</div>
+      <div class="q-text">"_____ your wedding blog?" — "Of course. It is personal, interactive, and linked to a guest book. Check."</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(5,0,this)">Did you create</button>
+        <button class="opt-btn" onclick="pickMCQ(5,1,this)">Have you created</button>
+        <button class="opt-btn" onclick="pickMCQ(5,2,this)">Are you creating</button>
+        <button class="opt-btn" onclick="pickMCQ(5,3,this)">Do you create</button>
+      </div>
+      <div class="q-feedback" id="fb5"></div>
+    </div>
+
+    <div class="q-block" id="qb6">
+      <div class="q-num">Question 7 of 8</div>
+      <div class="q-scene">Grey's Anatomy — Meredith talking about her feelings</div>
+      <div class="q-text">"I _____ in love. No, I _____ in love."</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(6,0,this)">never was / was never</button>
+        <button class="opt-btn" onclick="pickMCQ(6,1,this)">have never been / have never been</button>
+        <button class="opt-btn" onclick="pickMCQ(6,2,this)">never am / am never</button>
+        <button class="opt-btn" onclick="pickMCQ(6,3,this)">had never been / had never been</button>
+      </div>
+      <div class="q-feedback" id="fb6"></div>
+    </div>
+
+    <div class="q-block" id="qb7">
+      <div class="q-num">Question 8 of 8</div>
+      <div class="q-scene">Grey's Anatomy — a character talking about the past</div>
+      <div class="q-text">"I just thought that if I gave it time, the feelings would go away. But after the last two days, I don't know if I _____ the feelings to go away."</div>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="pickMCQ(7,0,this)">want</button>
+        <button class="opt-btn" onclick="pickMCQ(7,1,this)">wanted</button>
+        <button class="opt-btn" onclick="pickMCQ(7,2,this)">have wanted</button>
+        <button class="opt-btn" onclick="pickMCQ(7,3,this)">want ever</button>
+      </div>
+      <div class="q-feedback" id="fb7"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB 3: FILL IN -->
+<div id="t3" class="screen">
+  <div class="ex-section">
+    <div class="ex-title">Complete the scenes</div>
+    <div class="ex-desc">Select a phrase from the bank, then click the blank to fill it in. Use the scene context as a clue.</div>
+    <div class="word-bank" id="bank">
+      <span class="wb-label">Word bank — click to select, then click a blank</span>
+      <span class="bank-chip" onclick="selectChip('have been',this)">have been</span>
+      <span class="bank-chip" onclick="selectChip('have never been',this)">have never been</span>
+      <span class="bank-chip" onclick="selectChip('has worked',this)">has worked</span>
+      <span class="bank-chip" onclick="selectChip('have you two been',this)">have you two been</span>
+      <span class="bank-chip" onclick="selectChip('haven\'t seen',this)">haven't seen</span>
+      <span class="bank-chip" onclick="selectChip('have you been able to',this)">have you been able to</span>
+    </div>
+    <div id="fill-container">
+
+      <div class="fill-block" id="fb_0">
+        <div class="q-scene">Two detectives arguing about how long they've worked together.</div>
+        <div class="fill-sentence">We <span class="blank" id="bl0" onclick="fillBlank(0,'have been')">click to fill</span> partners for almost 5 years. It hasn't been easy.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">hint: Grey's Anatomy · duration</div>
+        <div class="fill-result" id="fr0"></div>
+      </div>
+
+      <div class="fill-block" id="fb_1">
+        <div class="q-scene">Meredith confesses she's never felt that way before.</div>
+        <div class="fill-sentence">I <span class="blank" id="bl1" onclick="fillBlank(1,'have never been')">click to fill</span> in love. Not once.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">hint: Grey's Anatomy · life experience (negative)</div>
+        <div class="fill-result" id="fr1"></div>
+      </div>
+
+      <div class="fill-block" id="fb_2">
+        <div class="q-scene">A character defends the housekeeper's years of service.</div>
+        <div class="fill-sentence">Odessa <span class="blank" id="bl2" onclick="fillBlank(2,'has worked')">click to fill</span> here for 10 years. She adores you.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">hint: Desperate Housewives · duration with result</div>
+        <div class="fill-result" id="fr2"></div>
+      </div>
+
+      <div class="fill-block" id="fb_3">
+        <div class="q-scene">Someone asks a couple how long they've been in a relationship.</div>
+        <div class="fill-sentence">How long <span class="blank" id="bl3" onclick="fillBlank(3,'have you two been')">click to fill</span> together? Almost five years.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">hint: Grey's Anatomy · question about duration</div>
+        <div class="fill-result" id="fr3"></div>
+      </div>
+
+      <div class="fill-block" id="fb_4">
+        <div class="q-scene">A worried character explains how long her friend has been missing.</div>
+        <div class="fill-sentence">I <span class="blank" id="bl4" onclick="fillBlank(4,'haven\'t seen')">click to fill</span> her in two months. She's disappeared.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">hint: Desperate Housewives · negative + time</div>
+        <div class="fill-result" id="fr4"></div>
+      </div>
+
+      <div class="fill-block" id="fb_5">
+        <div class="q-scene">A doctor asks about the success rate for a specific surgery.</div>
+        <div class="fill-sentence">How many operations <span class="blank" id="bl5" onclick="fillBlank(5,'have you been able to')">click to fill</span> save? Three.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">hint: Grey's Anatomy · accumulated result</div>
+        <div class="fill-result" id="fr5"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: RESULTS -->
+<div id="t4" class="screen">
+  <div class="result-wrap">
+    <div class="result-score" id="r-pct">—</div>
+    <div class="result-msg" id="r-msg">Complete the exercises to see your results.</div>
+    <div class="score-grid">
+      <div class="sc-card"><div class="sc-num" id="r-mcq">—</div><div class="sc-lbl">MCQ quiz</div></div>
+      <div class="sc-card"><div class="sc-num" id="r-fill">—</div><div class="sc-lbl">Fill in</div></div>
+      <div class="sc-card"><div class="sc-num" id="r-total">—</div><div class="sc-lbl">Total</div></div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">Start over</button>
+  </div>
+</div>
+
+<script>
+// Tab navigation
+function goTab(idx, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('t' + idx).classList.add('active');
+  if (idx === 4) buildResults();
+}
+
+// Scene analysis toggle
+function revealQ(i, btn) {
+  const el = document.getElementById('qa' + i);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? 'Hide analysis' : 'Analyse grammar';
+}
+
+// MCQ
+const MCQ_ANS = [1, 2, 1, 1, 0, 1, 1, 0];
+const MCQ_FB = [
+  "Present perfect because the doctor is talking about his entire career record — no specific time mentioned, the experience matters NOW.",
+  "'We've been best friends since we were seven' — a state that started in the past and continues NOW. 'Since' + starting point = present perfect.",
+  "All three are present perfect — he's talking about things he has done in his life (life experiences). The third one uses 'never' + present perfect = something that has NOT happened in his entire life.",
+  "Negative present perfect + 'in' = something has NOT happened in a period of time. The situation affects the present — she's concerned about her friend RIGHT NOW.",
+  "'How long have you been…?' = asking about duration up to NOW. 'We've been partners for 5 years' = started 5 years ago and STILL true. Classic present perfect for ongoing situations.",
+  "'Have you created…?' = asking about a recent task that should be done by NOW. The result (the blog exists) matters in the present moment — that's why present perfect, not simple past.",
+  "'I have never been in love' = in my entire life experience up to this moment. 'Never' + present perfect = a gap in life experience. This is one of the most common uses of present perfect.",
+  "Here the simple present 'I want' is correct — it describes her feeling RIGHT NOW. Not every sentence about the present uses present perfect! Context is key."
+];
+const mcqDone = new Array(8).fill(false);
+let mcqScore = 0;
+
+function pickMCQ(qi, oi, btn) {
+  if (mcqDone[qi]) return;
+  mcqDone[qi] = true;
+  const block = document.getElementById('qb' + qi);
+  block.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  const fb = document.getElementById('fb' + qi);
+  if (oi === MCQ_ANS[qi]) {
+    btn.classList.add('correct');
+    fb.className = 'q-feedback show ok';
+    fb.innerHTML = '<strong>Correct!</strong> ' + MCQ_FB[qi];
+    mcqScore++;
+  } else {
+    btn.classList.add('wrong');
+    block.querySelectorAll('.opt-btn')[MCQ_ANS[qi]].classList.add('revealed');
+    fb.className = 'q-feedback show ko';
+    fb.innerHTML = '<strong>Not quite.</strong> ' + MCQ_FB[qi];
+  }
+  updateScore();
+}
+
+// Fill in
+const FILL_ANS = ['have been', 'have never been', 'has worked', 'have you two been', "haven't seen", 'have you been able to'];
+let fillScore = 0;
+let selectedChip = null;
+let fillDone = new Array(6).fill(false);
+
+function selectChip(w, el) {
+  selectedChip = w;
+  document.querySelectorAll('.bank-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function fillBlank(i, expected) {
+  if (!selectedChip) { alert('Select a phrase from the word bank first!'); return; }
+  const blank = document.getElementById('bl' + i);
+  const result = document.getElementById('fr' + i);
+  const wasCorrect = fillDone[i];
+  blank.textContent = selectedChip;
+  if (selectedChip === FILL_ANS[i]) {
+    blank.className = 'blank correct';
+    result.innerHTML = '<span style="font-size:12px;color:var(--correct);font-weight:500">✓ Correct!</span>';
+    if (!wasCorrect) { fillScore++; fillDone[i] = true; }
+  } else {
+    blank.className = 'blank wrong';
+    result.innerHTML = '<span style="font-size:12px;color:var(--wrong)">Try again — pick a different phrase from the bank.</span>';
+    if (wasCorrect) { fillScore--; fillDone[i] = false; }
+  }
+  selectedChip = null;
+  document.querySelectorAll('.bank-chip').forEach(c => c.classList.remove('sel'));
+  updateScore();
+}
+
+function updateScore() {
+  // optional score display — no progress bar in this version
+}
+
+function buildResults() {
+  const total = 14;
+  const got = mcqScore + fillScore;
+  const pct = Math.round(got / total * 100);
+  document.getElementById('r-pct').textContent = pct + '%';
+  const msgs = [[0,'Keep going — try again!'], [50,'Good work! Review the scenes you missed.'], [70,'Nice job! You know your present perfect.'], [90,'Excellent — you nailed it!']];
+  let msg = msgs[0][1];
+  for (const [min, m] of msgs) { if (pct >= min) msg = m; }
+  document.getElementById('r-msg').textContent = msg;
+  document.getElementById('r-mcq').textContent = mcqScore + '/8';
+  document.getElementById('r-fill').textContent = fillScore + '/6';
+  document.getElementById('r-total').textContent = got + '/' + total;
+}
+
+function resetAll() {
+  location.reload();
+}
+</script>
+</body>
+</html>
